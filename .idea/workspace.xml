@@ -6,7 +6,13 @@
     <option name="SHOW_STRUCTURE" value="true" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d1a11c21-074b-4dc5-a876-2c2b59cf217e" name="Default Changelist" comment="" />
+    <list default="true" id="d1a11c21-074b-4dc5-a876-2c2b59cf217e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/OCR_table.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/time.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/time.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/read_pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/read_pdf.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,16 +20,16 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Code_Lib$Multi_thread_downloading.coverage" NAME="Multi-thread downloading Coverage Results" MODIFIED="1546916127834" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/time$dir.coverage" NAME="dir Coverage Results" MODIFIED="1540556010867" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CodeLib$genGIF.coverage" NAME="genGIF Coverage Results" MODIFIED="1548774054898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/time$pip_show.coverage" NAME="pip-show Coverage Results" MODIFIED="1539070183765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/time$bar.coverage" NAME="bar Coverage Results" MODIFIED="1541568508102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/time$timeTry.coverage" NAME="timeTry Coverage Results" MODIFIED="1539004815282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Code_Lib$bar.coverage" NAME="bar Coverage Results" MODIFIED="1546918381794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code_Lib$ping.coverage" NAME="ping Coverage Results" MODIFIED="1546922302064" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/time$timeTry.coverage" NAME="timeTry Coverage Results" MODIFIED="1539004815282" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/time$bar.coverage" NAME="bar Coverage Results" MODIFIED="1541568508102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/time$pip_show.coverage" NAME="pip-show Coverage Results" MODIFIED="1539070183765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code_Lib$genGIF.coverage" NAME="genGIF Coverage Results" MODIFIED="1548324884456" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CodeLib$genGIF.coverage" NAME="genGIF Coverage Results" MODIFIED="1548774054898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Code_Lib$Multi_thread_downloading.coverage" NAME="Multi-thread downloading Coverage Results" MODIFIED="1546916127834" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/time$time.coverage" NAME="time Coverage Results" MODIFIED="1539004658159" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/Code_Lib$bar.coverage" NAME="bar Coverage Results" MODIFIED="1546918381794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -43,17 +49,7 @@
     <favorites_list name="Code Lib" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/read_pdf.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="13" selection-start-column="13" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -73,6 +69,10 @@
       <replace>|</replace>
     </replaceStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -88,14 +88,15 @@
         <option value="$PROJECT_DIR$/ping.py" />
         <option value="$PROJECT_DIR$/genGIF.py" />
         <option value="$PROJECT_DIR$/read_pdf.py" />
+        <option value="$PROJECT_DIR$/OCR_table.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="960" />
-    <option name="y" value="45" />
-    <option name="width" value="960" />
-    <option name="height" value="1035" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="951" />
+    <option name="y" value="50" />
+    <option name="width" value="978" />
+    <option name="height" value="1039" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Default">
@@ -134,6 +135,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -145,13 +147,13 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SearchEverywhereHistoryKey" value="inspect&#9;ACTION&#9;CodeInspection.OnEditor" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../TheEconomist/CrawGithub.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
@@ -169,7 +171,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.genGIF">
+  <component name="RunManager" selected="Python.OCR_table">
     <configuration name="time" type="JupiterNotebook" factoryName="Jupyter Notebook">
       <module name="time" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -210,6 +212,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="OCR_table" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="time" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OCR_table.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="bar" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="time" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -224,28 +248,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bar.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="dir" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="time" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dir.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -299,20 +301,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Jupyter Notebook.time" />
-      <item itemvalue="Python.bar" />
-      <item itemvalue="Python.dir" />
       <item itemvalue="Python.Multi-thread downloading" />
-      <item itemvalue="Python.ping" />
+      <item itemvalue="Python.bar" />
       <item itemvalue="Python.genGIF" />
+      <item itemvalue="Python.ping" />
+      <item itemvalue="Python.OCR_table" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.OCR_table" />
+        <item itemvalue="Python.bar" />
         <item itemvalue="Python.genGIF" />
         <item itemvalue="Python.ping" />
-        <item itemvalue="Python.bar" />
         <item itemvalue="Python.Multi-thread downloading" />
-        <item itemvalue="Python.dir" />
       </list>
     </recent_temporary>
   </component>
@@ -332,11 +333,18 @@
       <workItem from="1548771045674" duration="3285000" />
       <workItem from="1549450273436" duration="1676000" />
       <workItem from="1549460975254" duration="165000" />
+      <workItem from="1553925566455" duration="1085000" />
+      <workItem from="1553930793916" duration="139000" />
+      <workItem from="1553933389624" duration="25000" />
+      <workItem from="1554030458901" duration="19000" />
+      <workItem from="1555142078471" duration="921000" />
+      <workItem from="1555222896348" duration="15842000" />
+      <workItem from="1555418658193" duration="3262000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="31737000" />
+    <option name="totallyTimeSpent" value="53030000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -348,25 +356,25 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="35" width="1542" height="832" extended-state="6" />
+    <frame x="761" y="40" width="782" height="831" extended-state="1" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49879518" visible="true" weight="0.091093116" />
-      <window_info id="Structure" order="1" sideWeight="0.50120485" side_tool="true" weight="0.16261809" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.496788" weight="0.29032257" />
+      <window_info id="Structure" order="1" sideWeight="0.503212" side_tool="true" weight="0.29032257" />
       <window_info id="Favorites" order="2" sideWeight="0.50120485" side_tool="true" weight="0.16261809" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3909224" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49789622" weight="0.31019202" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.48821083" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49932525" weight="0.3259362" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.49932525" weight="0.32846716" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5006748" side_tool="true" weight="0.32503662" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32871014" />
+      <window_info active="true" anchor="bottom" id="Event Log" order="10" sideWeight="0.5021038" side_tool="true" visible="true" weight="0.30973452" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49789622" weight="0.329927" />
       <window_info anchor="bottom" id="Inspection Results" order="12" weight="0.32892805" />
-      <window_info anchor="bottom" x="-19" y="170" width="1536" height="799" id="Python Console" order="13" weight="0.4070278" />
+      <window_info anchor="bottom" x="-19" y="170" width="1536" height="799" id="Python Console" order="13" sideWeight="0.49789622" weight="0.43065694" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -423,22 +431,14 @@
       </breakpoints>
     </breakpoint-manager>
   </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/CodeLib$bar.coverage" NAME="bar Coverage Results" MODIFIED="1555142754442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CodeLib$OCR_table.coverage" NAME="OCR_table Coverage Results" MODIFIED="1555244122127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/timeTry.ipynb" />
-    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/scipy/optimize/tests/test__basinhopping.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/t.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="7" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/scipy/optimize/tests/test__basinhopping.py" />
+    <entry file="file://$PROJECT_DIR$/t.ipynb" />
     <entry file="file://$PROJECT_DIR$/timeTry.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="161">
@@ -446,13 +446,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/progressbar/bar.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="229" column="8" selection-start-line="229" selection-start-column="8" selection-end-line="229" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/progressbar/bar.py" />
     <entry file="file://$PROJECT_DIR$/../ping.py" />
     <entry file="file://$PROJECT_DIR$/dir.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -476,13 +470,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://D:/Program Files/python/python37/Lib/threading.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="864" selection-start-line="864" selection-end-line="864" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Program Files/python/python37/Lib/threading.py" />
     <entry file="file://$PROJECT_DIR$/Multi-Tasks-Option.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="69">
@@ -510,20 +498,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bar.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="87">
-          <caret line="71" selection-start-line="71" selection-end-line="76" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/imageio/core/request.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="272" selection-start-line="272" selection-end-line="272" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Program Files/python/python37/Lib/site-packages/imageio/core/request.py" />
     <entry file="file://$PROJECT_DIR$/genGIF.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="303">
@@ -535,9 +510,29 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/read_pdf.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://C:/Program Files/Python37/Lib/site-packages/itchat/components/register.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="13" selection-start-column="13" selection-end-column="13" />
+        <state relative-caret-position="204">
+          <caret line="93" column="40" lean-forward="true" selection-start-line="93" selection-start-column="40" selection-end-line="93" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/OCR_table.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="91">
+          <caret line="62" selection-start-line="62" selection-end-line="62" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bar.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="59" column="59" selection-start-line="59" selection-start-column="59" selection-end-line="59" selection-end-column="59" />
         </state>
       </provider>
     </entry>
