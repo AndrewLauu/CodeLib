@@ -27,7 +27,7 @@ def get_html(txtName, txtIDCard):
 
 # 解析html取出个人信息
 def get_result(html, result=None):
-    if html.find(r"刘朋飞") != -1:
+    if html.find(r"Andrew") != -1:
         # 姓名
         name_start = html.find(r'姓名：')  # 起点记录查询位置
         name_end = html.find(r'证件号：')
@@ -72,9 +72,9 @@ def get_result(html, result=None):
 
 def send_mail(msg):
     # 发送邮件，初始参数
-    mailer = '17853146708@139.com'  # 发送方邮箱
-    password = "cmcc528528"  # 填入发送方邮箱的授权码
-    msg_to = 'Andrew_Lauu@126.com'  # 收件人邮箱
+    mailer = '123456@139.com'  # 发送方邮箱
+    password = "cmcc"  # 填入发送方邮箱的授权码
+    msg_to = ''  # 收件人邮箱
     Subject = "普通话成绩监控"
     yag = yagmail.SMTP(mailer, password, host='smtp.10086.cn', port=25, smtp_ssl=False)
     yag.send(msg_to, Subject, msg)
@@ -96,8 +96,8 @@ def main():
         print("工作时间，启动中...")
         # txtName = input("请输入姓名：")
         # txtIDCard = input("请输入身份证号：")
-        names = "刘朋飞"
-        ids = "37028119970702051X"
+        names = "Andrew"
+        ids = "123456789123456789"
         # for i in range(len(names)):
         txtName = names
         txtIDCard = ids

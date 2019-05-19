@@ -1,25 +1,38 @@
+# $USR/bin/python
+# -*- coding=utf8 -*-
+
 import re
 import subprocess as s
 import time
+import platform as plf
+import sys
 
 print('imported pkgs')
 
 
 def ping(ip):
-    p = s.Popen(["ping.exe", ip],
+    os=plf.system()
+    if os=='Linux':
+        script=f'ping -q -c 10 -i 1 -W 5 {ip}'
+        regRtt='rtt min/avg/max/mdev = (\d+.\d+)/(\d+.\d+)/(\d+.\d+)/(\d+.\d+) ms'#rtt min/avg/max/mdev = 5.872/182.145/538.362/195.752 ms
+
+    elif os=='Windows':
+        script='ping.exe {ip}'
+        regMinT = u'最短 = \d+'  # Minimum = 37ms, Maximum = 38ms, Average = 37ms   最短 = 37ms，最长 = 77ms，平均 = 48ms
+        regMaxT = u'最长 = \d+'
+        regAvgT = u'平均 = \d+'
+        regDit = u'\d+'
+        regError = u'请求超时'
+    p = s.Popen(script,
                 stdin=s.PIPE,
                 stdout=s.PIPE,
                 stderr=s.PIPE,
                 shell=True)
-    result = p.stdout.read().decode("gbk")
-    # print(result)
-    regMinT = u'最短 = \d+'  # Minimum = 37ms, Maximum = 38ms, Average = 37ms   最短 = 37ms，最长 = 77ms，平均 = 48ms
-    regMaxT = u'最长 = \d+'
-    regAvgT = u'平均 = \d+'
-    regDit = u'\d+'
-    regError = u'请求超时'
-    # print(result)
+    result = p.stdout.read().decode('utf8')
+
+   # print(result)
     time.sleep(2)
+    '''
     if re.search(regError, result):
         flag = False
         minT = maxT = avgT = 99999
@@ -31,7 +44,21 @@ def ping(ip):
         minT = int(re.search(regDit, minT).group())
         maxT = int(re.search(regDit, maxT).group())
         avgT = int(re.search(regDit, avgT).group())
-    return minT, maxT, avgT, flag
+        '''
+
+    rtt=re.search(regRtt,result)
+    if rtt:
+#        rtt=[int(i) for i in rtt_ori]
+        minT=float(rtt[1])
+        avgT=float(rtt[2])
+        maxT=float(rtt[3])
+        mdevT=float(rtt[4])
+        flag=True
+    else:
+        flag=False
+        minT=avgT=maxT=mdevT=9999
+
+    return minT, maxT, avgT, mdevT,flag
 
 
 def main():
@@ -52,33 +79,40 @@ def main():
     }
     print('Loaded IP addresses')
 
-    minList = maxList = avgList = []
-    logName = 'ping.' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.md'
+    logName = f'ping.{time.strftime("%Y-%m-%d", time.localtime(time.time()))}.md'
     with open(logName, 'w') as log:
-        log.write('name|ip|Min|Max|Avg\n---|---|---|---|---\n')
+        log.write('name|ip|Min|Max|Avg|Mdev\n---|---|---|---|---|---\n')
 
 
     for name, ip in ip_dict.items():
+        minList =[]
+        maxList = []
+        avgList = []
+        mdevList=[]
         # ping 5 times
         for count in range(5):
-            print(f'Pinging {name} for {count + 1}...')
-            minT, maxT, avgT, flag = ping(ip)
-            if not flag:
-                print("Failed")
-                continue
-            else:
+            sys.stdout.write(f'\rPing {name} for {count + 1}...\r')
+            sys.stdout.flush()
+            minT, maxT, avgT, mdevT,flag = ping(ip)
+            
+            if flag:
                 minList.append(minT)
                 maxList.append(maxT)
                 avgList.append(avgT)
+                mdevList.append(mdevT)
                 time.sleep(2)
+            else:
+                print("Failed")
+                continue
         try:
-            avgMin = round(sum(minList) / len(minList), 4)
-            avgMax = round(sum(maxList) / len(maxList), 4)
+            minMin = min(minList)
+            maxMax = max(maxList)
             avgAvg = round(sum(avgList) / len(avgList), 4)
-        except ZeroDivisionError:
+            avgMdev = round(sum(mdevList) / len(mdevList), 4)
+        except(ZeroDivisionError,ValueError):
             continue
 
-        print(f"ping {name}: 最短 {avgMin}ms, 最长{avgMax}ms, 平均{avgAvg}ms")
+        print(f"ping {name}: 最短 {minMin} ms, 最长{maxMax} ms, 平均{avgAvg} ms, 标准差 {avgMdev} ms")
 
         with open(logName, 'a') as log:
             # log.write(ip + "|" + name + '\n')
@@ -86,8 +120,8 @@ def main():
             #     for val in vallist:
             #         log.write(str(val) + "|")
             #     log.write("\n")
-            log.write(f"{name}|{ip}|{avgMin}|{avgMax}|{avgAvg}\n")
-        time.sleep(5)
+            log.write(f"{name}|{ip}|{minMin}|{maxMax}|{avgAvg}|{avgMdev}\n")
+        time.sleep(3)
 
 
 if __name__ == "__main__":
