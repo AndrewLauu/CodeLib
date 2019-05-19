@@ -29,6 +29,8 @@ def ping(ip):
                 stderr=s.PIPE,
                 shell=True)
     result = p.stdout.read().decode('utf8')
+    else:
+        raise OSError(f'Platform {os} is not supported.')
 
    # print(result)
     time.sleep(2)
