@@ -1,109 +1,142 @@
+# -*- coding: UTF-8 -*-
 import os
 import shutil
+import sys
+import time
 
-import openpyxl as xl
+import openpyxl as pyxl
 import progressbar as p
+import xlrd
 from progressbar import Bar
 
 
 def main():
-    originDir = input("Insert path where the excel files to be merged exist: ")
-    if not os.path.isdir(originDir):
-        raise FileNotFoundError('Not a valid path', originDir)
-    targetFile = input("Insert path where to put the target file, or where the target file is: ")
-    format = input('Insert header lines and foot lines lines with comma as delimiter("2,2" or "2," or ",2"): ')
-    header, foot = [int(i) if i else 0 for i in format.split(',')]
-    merge(originDir=originDir, targetDir=targetFile, header=header, foot=foot)
+    srcDir = input("Insert path where the excel files to be merged exist: ")
+    if not os.path.isdir(srcDir):
+        raise FileNotFoundError('Not a valid path', srcDir)
+    dstFile = input("Insert path where to put the dst file, or where the dst file is: ")
+    pattern = input(
+        'Insert nHead lines and nFoot lines lines with comma as delimiter("2,2" or "2," or ",2"): ').replace('，', ',')
+    # print(f'{pattern=}')
+    nHead, nFoot = [int(i) if i else 0 for i in pattern.split(',')] if pattern else (0, 0)
+    merge(srcDir=srcDir, dstDir=dstFile, nHead=nHead, nFoot=nFoot)
 
 
-def merge(originDir: str = None, targetDir: str = None, header: int = 2, foot: int = None):
+def merge(srcDir: str = None, dstDir: str = None, nHead: int = 2, nFoot: int = None, extraArea: str = None,
+          minCol: int = None, maxCol: int = None, rename: bool = False):
     """
-    :param originDir: Path where the excel files to be merged exist.
-    :param targetDir: Path where to put the target file, or where the target file is
-    :param header: Head line number
-    :param foot: Foot line number
+    :param srcDir: Path where the excel files to be merged exist.
+    :param dstDir: Path where to put the dst file, or where the dst file is
+    :param nHead: Head line number
+    :param nFoot: nFoot line number
+    :param extraArea: Additional area in nHead, nFooter or content to give extra information with comma as delimiter.
+    Use *name for filename.
+    :parm minCol: start column to merge, from 1 insteading of 0
+    :parm maxCol: end column to merge, from 1
+    :parm rename: Whether to rename the file merged
     """
-    # Get origin files in all folders.
-    xlsxFiles = []
-    xlsFile=[]
-    passed=[]
-
-        footContent = []
 
     # loop dir
-    for root, dirs, files in os.walk(originDir):
+    xlFiles = []
+    nPass = 0
+    for root, dirs, files in os.walk(srcDir):
         for f in files:
-            EXT=os.path.splitext(f).lower()
-            if EXT == 'xlsx':
-                #mergeXlsx(path,targetWS)
-                xlsxFiles.append(os.path.join(root, f))
-            elif EXT== 'xls':
-                # xls use xlrd
-                # FIXME
-                xlsFiles.append(os.path.join(root, f))
-                pass
+            # EXT = f.split('.')[-1].lower()
+            # path = os.path.join(root, f)
+            if "xls" in f.split('.')[-1].lower():
+                xlFiles.append(os.path.join(root, f))
             else:
-                passed.append(os.path.join(root, f))
+                nPass += 1
 
-    if xlsxFiles or xlsFiles:
-        nFiles = len(xlsxFiles)+len(xlsFiles)
-        print(f'Establish dir tree, found {nFiles} files to be merged')
-        if passed:
-            print('Pass following file(s) for not being Excel file:\n','\n'.join(passed))
-        if xlsFiles:
-            import xlrd
+    nXlFiles = len(xlFiles)
+    maxDirLen = len(max(xlFiles, key=len))
+
+    if xlFiles:
+        print(f'Establish dir tree, found {nXlFiles} files to be merged and {nPass} non-Excel files passed.')
     else:
-        raise FileNotFoundError(originDir, 'has no file.')
+        raise FileNotFoundError(srcDir, 'has no file.')
 
-    # Got a dir, copy the last origin file to there as a target
-    # Got nothing, copy the last origin file to desktop as a target
-    if not os.path.isfile(targetDir):
-        testFile = xlsxFiles.pop()
-        if os.path.isdir(targetDir):
-            targetDir = os.path.join(targetDir, os.path.basename(testFile))
+    # open dst Excel
+    # Got a dir, copy the last src file to there as a dst
+    # Got nothing, copy the last src file to *desktop* as a dst
+    if not os.path.isfile(dstDir):
+        testFile = xlFiles.pop()
+        if os.path.isdir(dstDir):
+            dstDir = os.path.join(dstDir, 'mergedExcel.xlsx')
         else:
-            targetDir = os.path.join('D:\\Desktop', os.path.basename(testFile))
-        shutil.copy2(testFile, targetDir)
-        print(f'No target file specified, moved an existing file: {testFile} to {targetDir} as a target file.')
+            dstDir = 'D:\\Desktop\\mergedExcel.xlsx'
+        try:
+            shutil.copy2(testFile, dstDir)
+        except shutil.SameFileError:
+            os.remove(dstDir)
+            shutil.copy2(testFile, dstDir)
+        print(f'No dst file specified, copied an existing file: {testFile} to {dstDir} as a dst file.')
 
-    # Load target workbook.
-    print('Loading target workbook...')
-    targetWB = xl.load_workbook(targetDir)
-    targetWS = targetWB.active
-    nTargetRow = targetWS.max_row
-    ## Copy foot line and paste when all origin files were merged.
-    if foot:
-        footContent = targetWS.iter_rows(min_row=nTargetRow - foot + 1)
-        targetWS.delete_rows(nTargetRow - foot + 1, amount=foot)
+    # Load dst workbook.
+    print('Loading dst workbook...')
+    dstBook = pyxl.load_workbook(dstDir)
+    dstSheet = dstBook.active
+    nTargetRow = dstSheet.max_row
+    # Copy nFoot line and paste when all src files were merged.
+    if nFoot:
+        footContent = dstSheet.iter_rows(min_row=nTargetRow - nFoot + 1, values_only=True)
+        dstSheet.delete_rows(nTargetRow - nFoot + 1, amount=nFoot)
     else:
+        footContent = []
 
-    maxDirLen = len(max(xlsxFiles, key=len))
+    # loop src Excel
     w = [
-        p.Percentage(), ' ', p.Counter(), f'/{nFiles}',
+        p.Percentage(), ' ', p.Counter(), f'/{nXlFiles}',
         Bar(left=" |", right='| ', marker=">", fill="-"),
-        p.ETA(), ' ', p.DynamicMessage('Progressing', width=maxDirLen, precision=maxDirLen)
-    ]
-    with p.ProgressBar(widgets=w, max_value=nFiles) as bar:
-        # Deal with *.xlsx
-        for xlsxFile in xlsxFiles:
-            bar.update(value=xlsxFiles.index(xlsxFile), Progressing=xlsxFile)
-            originWB = xl.load_workbook(xlsxFile, read_only=True)
-            originWS = originWB.active
-            nOriginRow = originWS.max_row
-            content = originWS.iter_rows(min_row=header + 1, max_row=nOriginRow - foot)
-            # rawContent = [[cell.value for cell in row] for row in content]
-            for row in content:
-                newRow = [cell.value for cell in row]
-                targetWS.append(newRow)
+        p.ETA(), ' ', p.Variable('Progressing', width=maxDirLen, precision=maxDirLen)
+        ]
+    # if extraArea != '*name':
+    #     # noinspection PyUnresolvedReferences
+    #     extraArea = xl.utils.range_to_tuple('sheet1!' + extraArea)[:1]
 
-        # Deal with *.xls
-        for xlsFile in xlsFiles 
+    with p.ProgressBar(widgets=w, max_value=nXlFiles, redirect_stdout=True) as bar:
+        for xl in xlFiles:
+            bar.update(value=xlFiles.index(xl), Progressing=xl)
+
+            if xl.split('.')[-1] == 'xls':
+                newRow = xlsRD(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
+            else:
+                newRow = xlsxRD(xl, minCol=minCol, maxCol=maxCol - 1, nHead=nHead, nFoot=nFoot)
+            for row in newRow:
+                # newRow = [cell.value for cell in row]
+                dstSheet.append(row)
+            if rename:
+                os.rename(xl, xl.replace('.xls', '-done.xls'))
 
     for row in footContent:
-        footRow = [cell.value for cell in row]
-        targetWS.append(footRow)
-    print(f'Finished all files; saving to {targetDir}...')
-    targetWB.save(targetDir)
+        dstSheet.append(row)
+    # time.sleep(0.2)
+    # sys.stdout.flush()
+    print(f'Finished all src files; saving to {dstDir}...')
+    dstBook.save(dstDir)
+
+
+def xlsRD(srcFp, nHead, nFoot, minCol=None, maxCol=None):
+    srcBook = xlrd.open_workbook(srcFp)
+    srcSheet = srcBook.sheet_by_index(0)
+    nSrcRow = srcSheet.nrows
+    content = [
+        srcSheet.row_values(rowx=i, start_colx=minCol, end_colx=maxCol)
+        for i in range(nHead, nSrcRow - nFoot)
+        ]
+    return content
+
+
+def xlsxRD(srcFp, nHead, nFoot, minCol=None, maxCol=None):
+    minCol = minCol - 1 if minCol else None
+    maxCol = maxCol - 1 if maxCol else None
+
+    srcBook = pyxl.load_workbook(srcFp, read_only=True)
+    srcSheet = srcBook.active
+    nSrcRow = srcSheet.max_row
+    content = srcSheet.iter_rows(min_row=nHead + 1, max_row=nSrcRow - nFoot, values_only=True,
+                                 min_col=minCol, max_col=maxCol)
+    return content
 
 
 if __name__ == '__main__':
