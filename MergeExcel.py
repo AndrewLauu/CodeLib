@@ -1,4 +1,5 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*
+-
 import os
 import shutil
 # import sys
@@ -25,7 +26,7 @@ def main():
 
 
 def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0,
-          extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False):
+        extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False,keepHead:bool=True,keepFoot:bool=True):
     """
     :param srcDir: Path where the excel files to be merged exist.
     :param dstDir: Path where to put the dst file, or where the dst file is
@@ -88,11 +89,17 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     dstSheet = dstBook.active
     nTargetRow = dstSheet.max_row
     # Copy nFoot line and paste when all src files were merged.
-    if nFoot:
+    if keepFoot:
         footContent = dstSheet.iter_rows(min_row=nTargetRow - nFoot + 1, values_only=True)
         dstSheet.delete_rows(nTargetRow - nFoot + 1, amount=nFoot)
     else:
         footContent = []
+
+    if not keepHead and nHead !=0:
+        dstSheet.delete_rows(1,amount=nHead)
+    elif not keepHead and nHead ==0:
+        raise ValueError('Head num not specified, do_not_keep_head function cannot work properly.')
+    dstBook.save(dstDir)
 
     # loop src Excel
     w = [
@@ -124,7 +131,7 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     # sys.stdout.flush()
     print(f'Finished all src files; saving to {dstDir}...')
     dstBook.save(dstDir)
-
+    return dstSheet
 
 def readXls(srcFp, nHead, nFoot, minCol=None, maxCol=None):
     minCol = minCol - 1 if minCol else None
