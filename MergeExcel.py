@@ -1,13 +1,12 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*
+-
 import os
 import shutil
-import sys
-import time
+# import time
 
 import openpyxl as pyxl
 import progressbar as p
 import xlrd
-from progressbar import Bar
 
 
 def main():
@@ -24,8 +23,8 @@ def main():
     merge(srcDir=srcDir, dstDir=dstFile, nHead=nHead, nFoot=nFoot)
 
 
-def merge(srcDir: str = None, dstDir: str = 'merge.xlsx', nHead: int = 0, nFoot: int = 0,
-          extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False):
+def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0,
+        extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False,keepHead:bool=True,keepFoot:bool=True):
     """
     :param srcDir: Path where the excel files to be merged exist.
     :param dstDir: Path where to put the dst file, or where the dst file is
@@ -64,63 +63,65 @@ def merge(srcDir: str = None, dstDir: str = 'merge.xlsx', nHead: int = 0, nFoot:
     # Got nothing, copy the last src file to ./ and rename to merge.xlsx as a dst
     # Got a name, copy the last src file to ./ and rename to it as a dst
     # Got a dir, copy the last src file to there and rename to merge.xlsx as a dst
-    # Got a file, use it.
+    # Got a file, raise error
 
     if not dstDir :
         dstDir = os.path.join('./', 'merge.xlsx')
     elif os.path.isdir(dstDir):
         dstDir = os.path.join(dstDir, 'mergedExcel.xlsx')
-    elif not os.path.isfile(dstDir):
+    elif os.path.isfile(dstDir):
+        raise ValueError('Why not using it as a src file?')
+    else:
         dstDir=os.path.join('./', dstDir)
 
-        testFile = xlFiles.pop()
-
-        else:
-            dstDir = os.path.join('./', dstDir)
-        try:
-            shutil.copy2(testFile, dstDir)
-        except shutil.SameFileError:
-            os.remove(dstDir)
-            shutil.copy2(testFile, dstDir)
-        print(
-            f'No dst file specified, copied an existing file: {testFile} to {dstDir} as a '
-            f'dst file.')
+    specFile = xlFiles.pop()
+    try:
+        shutil.copy2(specFile, dstDir)
+    except shutil.SameFileError:
+        os.remove(dstDir)
+        shutil.copy2(specFile, dstDir)
 
     # Load dst workbook.
-    print('Loading dst workbook...')
+    print(f'Loading dst workbook {dstDir}...')
     dstBook = pyxl.load_workbook(dstDir)
     dstSheet = dstBook.active
     nTargetRow = dstSheet.max_row
     # Copy nFoot line and paste when all src files were merged.
-    if nFoot:
+    if keepFoot:
         footContent = dstSheet.iter_rows(min_row=nTargetRow - nFoot + 1, values_only=True)
         dstSheet.delete_rows(nTargetRow - nFoot + 1, amount=nFoot)
     else:
         footContent = []
 
+    if not keepHead and nHead !=0:
+        dstSheet.delete_rows(1,amount=nHead)
+    elif not keepHead and nHead ==0:
+        raise ValueError('Head num not specified, do_not_keep_head function cannot work properly.')
+    dstBook.save(dstDir)
+
     # loop src Excel
     w = [
         p.Percentage(), ' ', p.Counter(), f'/{nXlFiles}',
-        Bar(left=" |", right='| ', marker=">", fill="-"),
+        p.Bar(left=" |", right='| ', marker=">", fill="-"),
         p.ETA(), ' ', p.Variable('Progressing', width=maxDirLen, precision=maxDirLen)
         ]
     # if extraArea != '*name':
     #     # noinspection PyUnresolvedReferences
     #     extraArea = xl.utils.range_to_tuple('sheet1!' + extraArea)[:1]
-
     with p.ProgressBar(widgets=w, max_value=nXlFiles, redirect_stdout=True) as bar:
         for xl in xlFiles:
             bar.update(value=xlFiles.index(xl), Progressing=xl)
 
             if xl.split('.')[-1] == 'xls':
-                newRow = xlsRD(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
+                newRow = readXls(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
             else:
-                newRow = xlsxRD(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
+                newRow = readXlsx(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
             for row in newRow:
                 # newRow = [cell.value for cell in row]
                 dstSheet.append(row)
             if rename:
                 os.rename(xl, xl.replace('.xls', '-done.xls'))
+            # time.sleep(1)
 
     for row in footContent:
         dstSheet.append(row)
@@ -128,9 +129,9 @@ def merge(srcDir: str = None, dstDir: str = 'merge.xlsx', nHead: int = 0, nFoot:
     # sys.stdout.flush()
     print(f'Finished all src files; saving to {dstDir}...')
     dstBook.save(dstDir)
+    return dstSheet
 
-
-def xlsRD(srcFp, nHead, nFoot, minCol=None, maxCol=None):
+def readXls(srcFp, nHead, nFoot, minCol=None, maxCol=None):
     minCol = minCol - 1 if minCol else None
     maxCol = maxCol - 1 if maxCol else None
 
@@ -144,8 +145,8 @@ def xlsRD(srcFp, nHead, nFoot, minCol=None, maxCol=None):
     return content
 
 
-def xlsxRD(srcFp, nHead, nFoot, minCol=None, maxCol=None):
-    srcBook = pyxl.load_workbook(srcFp, read_only=True)
+def readXlsx(srcFp, nHead, nFoot, minCol=None, maxCol=None):
+    srcBook = pyxl.load_workbook(srcFp,data_only=True)
     srcSheet = srcBook.active
     nSrcRow = srcSheet.max_row
     content = srcSheet.iter_rows(min_row=nHead + 1, max_row=nSrcRow - nFoot, values_only=True,
