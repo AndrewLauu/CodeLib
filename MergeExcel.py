@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*
--
+
 import os
 import shutil
 # import time
@@ -70,7 +70,7 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     elif os.path.isdir(dstDir):
         dstDir = os.path.join(dstDir, 'mergedExcel.xlsx')
     elif os.path.isfile(dstDir):
-        raise ValueError('Why not using it as a src file?')
+        os.remove(dstDir)
     else:
         dstDir=os.path.join('./', dstDir)
 
@@ -129,7 +129,7 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     # sys.stdout.flush()
     print(f'Finished all src files; saving to {dstDir}...')
     dstBook.save(dstDir)
-    return dstSheet
+    return dstBook
 
 def readXls(srcFp, nHead, nFoot, minCol=None, maxCol=None):
     minCol = minCol - 1 if minCol else None
