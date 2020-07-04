@@ -1,5 +1,5 @@
-# -*- coding: UTF-8 -*
--
+# -*- coding: UTF-8 -*-
+
 import os
 import shutil
 # import time
@@ -24,7 +24,8 @@ def main():
 
 
 def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0,
-        extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False,keepHead:bool=True,keepFoot:bool=True):
+          extraArea: str = None, minCol: int = None, maxCol: int = None, rename: bool = False,
+          keepHead: bool = True, keepFoot: bool = True):
     """
     :param srcDir: Path where the excel files to be merged exist.
     :param dstDir: Path where to put the dst file, or where the dst file is
@@ -65,14 +66,14 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     # Got a dir, copy the last src file to there and rename to merge.xlsx as a dst
     # Got a file, raise error
 
-    if not dstDir :
+    if not dstDir:
         dstDir = os.path.join('./', 'merge.xlsx')
     elif os.path.isdir(dstDir):
         dstDir = os.path.join(dstDir, 'mergedExcel.xlsx')
     elif os.path.isfile(dstDir):
         raise ValueError('Why not using it as a src file?')
     else:
-        dstDir=os.path.join('./', dstDir)
+        dstDir = os.path.join('./', dstDir)
 
     specFile = xlFiles.pop()
     try:
@@ -93,10 +94,11 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     else:
         footContent = []
 
-    if not keepHead and nHead !=0:
-        dstSheet.delete_rows(1,amount=nHead)
-    elif not keepHead and nHead ==0:
-        raise ValueError('Head num not specified, do_not_keep_head function cannot work properly.')
+    if not keepHead and nHead != 0:
+        dstSheet.delete_rows(1, amount=nHead)
+    elif not keepHead and nHead == 0:
+        raise ValueError(
+            'Head num not specified, do_not_keep_head function cannot work properly.')
     dstBook.save(dstDir)
 
     # loop src Excel
@@ -131,6 +133,7 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
     dstBook.save(dstDir)
     return dstSheet
 
+
 def readXls(srcFp, nHead, nFoot, minCol=None, maxCol=None):
     minCol = minCol - 1 if minCol else None
     maxCol = maxCol - 1 if maxCol else None
@@ -146,7 +149,7 @@ def readXls(srcFp, nHead, nFoot, minCol=None, maxCol=None):
 
 
 def readXlsx(srcFp, nHead, nFoot, minCol=None, maxCol=None):
-    srcBook = pyxl.load_workbook(srcFp,data_only=True)
+    srcBook = pyxl.load_workbook(srcFp, data_only=True)
     srcSheet = srcBook.active
     nSrcRow = srcSheet.max_row
     content = srcSheet.iter_rows(min_row=nHead + 1, max_row=nSrcRow - nFoot, values_only=True,
