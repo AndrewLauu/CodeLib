@@ -1,5 +1,4 @@
 # -*- coding:UTF-8 -*-
-
 import MergeExcel as mxl
 import openpyxl as xl
 import time
@@ -17,8 +16,10 @@ def reimburse():
 
 
 def directPay():
-    srcSheet = mxl.merge('三级池', '三级池汇总.tmp.xlsx', nHead=4, nFoot=1, keepHead=False,
-                         keepFoot=False, rename=True)
+    mxl.merge('三级池', '三级池汇总.tmp.xlsx', nHead=3, nFoot=1, keepHead=False,
+                         keepFoot=False, rename=False)
+    srcBook=xl.load_workbook('三级池汇总.tmp.xlsx')
+    srcSheet=srcBook.active
     # read specific columns
     '''三级池
     支付编号        2
@@ -31,20 +32,35 @@ def directPay():
     收方开户行市    9
     本次付款金额：  11
     '''
+    
+    nRow = srcSheet.max_row
+    print(nRow) 
+    # delete empty row
+    
+    for i in range(1,nRow+1):
+        ck=srcSheet[f'K{i}'].value
+        if not ck or '付款' in str(ck):
+            srcSheet.delete_rows(i,1)
+            i-=1
+        else:
+            print(ck,'\t\t\tkeep')
 
+    srcBook.save('三级池汇总.tmp.xlsx')
+    srcBook=xl.load_workbook('三级池汇总.tmp.xlsx')
+    srcSheet=srcBook.active
+    print(srcSheet['k8'].value)
     nRow = srcSheet.max_row
     print(f'Opened src book with {nRow} lines.')
-
-    remark = srcSheet.iter_columns(2, 2, values_only=True)
-    proj = srcSheet.iter_columns(3, 3, values_only=True)
-    name = srcSheet.iter_columns(4, 4, values_only=True)
-    bankName = srcSheet.iter_columns(5, 5, values_only=True)
-    bankNo = srcSheet.iter_columns(6, 6, values_only=True)
-    bankType = srcSheet.iter_columns(7, 7, values_only=True)
-    pv = srcSheet.iter_columns(8, 8, values_only=True)
-    city = srcSheet.iter_columns(9, 9, values_only=True)
-    money = srcSheet.iter_columns(11, 11, values_only=True)
-
+    
+    remark = srcSheet.iter_rows(1,nRow,2, 2, values_only=True)
+    proj = srcSheet.iter_rows(1,nRow,3, 3, values_only=True)
+    name = srcSheet.iter_rows(1,nRow,4, 4, values_only=True)
+    bankName = srcSheet.iter_rows(1,nRow,5, 5, values_only=True)
+    bankNo = srcSheet.iter_rows(1,nRow,6, 6, values_only=True)
+    bankType = srcSheet.iter_rows(1,nRow,7, 7, values_only=True)
+    pv = srcSheet.iter_rows(1,nRow,8, 8, values_only=True)
+    city = srcSheet.iter_rows(1,nRow,9, 9, values_only=True)
+    money = srcSheet.iter_rows(1,nRow,11, 11, values_only=True)
     print('Loaded columns.')
     # to summary workbook
     '''支付汇总表
@@ -59,20 +75,26 @@ def directPay():
     sumBook = xl.load_workbook('资金支付汇总表.xlsx')
     sumSheet = sumBook.active
 
-    no = list(range(1, nRow + 1))
+    no = [(i,) for i in range (1, nRow + 1)]
+#    print(no)
     z = zip(no, proj, name, bankName, bankNo, money, remark)
+#    print(list(z))
+    #time.sleep(2)
     content = [
         n + p + na + bna + bno + m + r
         for n, p, na, bna, bno, m, r in z
         ]
+#    print(content)
     print('Generated sum content, adding...')
-    for r in content:
-        sumSheet.append(r)
+    for ri in content:
+        sumSheet.append(ri)
     sumSheet.move_range('a6:g7', nRow + 2)
     sumSheet.delete_rows(6, 2)
     sumSheet['G4'] = f'=SUM(F6:F{6 + nRow})'
     sumBook.save('资金支付汇总表.xlsx')
     print('Saved sumBook.')
+
+
     # to CBS book
 
     '''支付模板
@@ -115,8 +137,8 @@ def directPay():
                zip(module1, module2, module3, remark, module4)]
     print('Generated bank content, adding...')
 
-    for r in content:
-        bankSheet.append(r)
+    for ri in content:
+        bankSheet.append(ri)
 
     bankBook.save('集中支付模板.xlsx')
     print('Saved bankBook.')
