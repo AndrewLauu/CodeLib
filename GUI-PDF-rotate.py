@@ -1,16 +1,18 @@
 # -*- coding:utf8 -*-
 
 from PyPDF2 import PdfFileReader as reader, PdfFileWriter as writer
-from tkinter import Tk, Button, Checkbutton, BooleanVar, filedialog, Label,StringVar
+from tkinter import Tk, Button, Label, Checkbutton, Radiobutton, filedialog
+from tkinter import StringVar, W
 from tkinter.font import Font
+from tkinter.messagebox import showinfo
 
 
 def fileRead():
     # global filenames
-    filenames = filedialog.askopenfilenames(filetypes=[('pdf', '*.pdf'), ('All Files', '*')])
-    strPath=','.join(filenames).lower()
+    filenames = filedialog.askopenfilenames(filetypes=[('pdf', '*.pdf')])
+    strPath = ','.join(filenames).lower()
     path.set(strPath)
-    label.config(text=f'{len(filenames)} file(s) selected.')
+    label1.config(text=f'2. 选中 {len(filenames)} 个文件')
 
 
 def rotate(filenames, angle, cover):
@@ -18,34 +20,46 @@ def rotate(filenames, angle, cover):
         inPdf = reader(inFp)
         n = inPdf.getNumPages()
         outPdf = writer()
-        outFp = inFp if cover.get() else inFp.replace('.pdf','_rotate.pdf')
+        outFp = inFp if cover.get() else inFp.replace('.pdf', '_rotate.pdf')
 
         for i in range(n):
-            p = inPdf.getPage(i).rotateClockwise(angle)
+            p = inPdf.getPage(i).rotateClockwise(int(angle.get()))
             outPdf.addPage(p)
             outPdf.write(open(outFp, 'wb'))
+    showinfo(message="完成，保存在源文件所在文件夹")
 
 
 root = Tk()
 root.title('PDF rotate')
-root.geometry('500x250')
+root.geometry('400x400')
 root.resizable(width=True, height=True)
-font=Font(size=20)
+font = Font(size=14)
 
-angle = 90
+path = StringVar()
+select = Button(root, text="1. 选择PDF文件", command=fileRead, font=font)
+select.grid(sticky=W, pady=30, padx=40, columnspan=3)
 
-path=StringVar()
-select = Button(root, text="select", command=fileRead,font=font)
-select.pack()
+label1 = Label(text='2. 检查文件数', font=font)
+label1.grid(sticky=W, pady=30, padx=40, columnspan=3)
 
-label = Label(text='null',font=font)
-label.pack()
+label2 = Label(text='3. 旋转角度（顺时针）', font=font)
+label2.grid(sticky=W, padx=40, columnspan=3)
 
+angle = StringVar()
+angle.set('90')
+angle90 = Radiobutton(root, text='90°', variable=angle, value='90', font=font)
+angle180 = Radiobutton(root, text='180°', variable=angle, value='180', font=font)
+angle270 = Radiobutton(root, text='270°', variable=angle, value='270', font=font)
+angle90.grid(sticky=W, padx=40, row=4, column=0)
+angle180.grid(sticky=W, row=4, column=1)
+angle270.grid(sticky=W, row=4, column=2)
 
-cover = BooleanVar()
-chk = Checkbutton(root, text="cover?", variable=cover, onvalue=True, offvalue=False,font=font)
-chk.pack()
+cover = StringVar()
+chk = Checkbutton(root, text="4. 覆盖源文件？", variable=cover, onvalue='1', offvalue='',
+                  font=font)
+chk.grid(sticky=W, pady=30, padx=40, columnspan=3)
 
-write = Button(root, text="write", command=lambda: rotate(path, angle, cover),font=font)
-write.pack()
+write = Button(root, text="5. 旋转并输出", font=font, command=lambda: rotate(path, angle, cover))
+write.grid(sticky=W, padx=40, columnspan=3)
+
 root.mainloop()
