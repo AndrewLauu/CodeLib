@@ -15,12 +15,12 @@ def fileRead():
     label1.config(text=f'2. 选中 {len(filenames)} 个文件')
 
 
-def rotate(filenames, angle, cover):
+def rotate(filenames, angle, overwrite):
     for inFp in filenames.get().split(','):
         inPdf = reader(inFp)
         n = inPdf.getNumPages()
         outPdf = writer()
-        outFp = inFp if cover.get() else inFp.replace('.pdf', '_rotate.pdf')
+        outFp = inFp if overwrite.get() else inFp.replace('.pdf', '_rotate.pdf')
 
         for i in range(n):
             p = inPdf.getPage(i).rotateClockwise(int(angle.get()))
@@ -54,12 +54,12 @@ angle90.grid(sticky=W, padx=40, row=4, column=0)
 angle180.grid(sticky=W, row=4, column=1)
 angle270.grid(sticky=W, row=4, column=2)
 
-cover = StringVar()
-chk = Checkbutton(root, text="4. 覆盖源文件？", variable=cover, onvalue='1', offvalue='',
+overwrite = StringVar()
+chk = Checkbutton(root, text="4. 覆盖源文件？", variable=overwrite, onvalue='1', offvalue='',
                   font=font)
 chk.grid(sticky=W, pady=30, padx=40, columnspan=3)
 
-write = Button(root, text="5. 旋转并输出", font=font, command=lambda: rotate(path, angle, cover))
+write = Button(root, text="5. 旋转并输出", font=font, command=lambda: rotate(path, angle, overwrite))
 write.grid(sticky=W, padx=40, columnspan=3)
 
 root.mainloop()
