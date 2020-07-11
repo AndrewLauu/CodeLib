@@ -8,7 +8,6 @@ from tkinter.messagebox import showinfo
 
 
 def fileRead():
-    # global filenames
     filenames = filedialog.askopenfilenames(filetypes=[('pdf', '*.pdf')])
     strPath = ','.join(filenames).lower()
     path.set(strPath)
