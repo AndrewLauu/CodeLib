@@ -114,10 +114,12 @@ def merge(srcDir: str = None, dstDir: str = None, nHead: int = 0, nFoot: int = 0
         for xl in xlFiles:
             bar.update(value=xlFiles.index(xl), Progressing=xl)
 
+            #todo xlrd.biffh.XLRDError : deal with xls file named *.xlsx or otherwise
             if xl.split('.')[-1] == 'xls':
                 newRow = readXls(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
-            else:
+            elif xl.split('.')[-1] == 'xlsx':
                 newRow = readXlsx(xl, minCol=minCol, maxCol=maxCol, nHead=nHead, nFoot=nFoot)
+            else : print('not excel file, passed.')
             for row in newRow:
                 # newRow = [cell.value for cell in row]
                 dstSheet.append(row)
