@@ -47,14 +47,7 @@ def getPBCNews():
     return newNews, newUrl
 
 
-def main():
-    # 1: toast 2:email
-    NOTIFIER_CHANNEL = 1
-    if NOTIFIER_CHANNEL == 1:
-        sendMsg = sendToast
-    else:
-        sendMsg = sendMail
-    logging.info(f'Message channel set as {NOTIFIER_CHANNEL}:{sendMsg.__name__}')
+def main(msgChannel):
 
     icbcNews, icbcUrl = getICBCNews()
     pbcNews, pbcUrl = getPBCNews()
@@ -79,7 +72,8 @@ def main():
         url = (icbcUrl, pbcUrl)
         logging.info(f'Found new article {content}')
 
-        sendMsg('纪念币更新', content, url)
+        for sendMsg in msgChannel:
+            sendMsg('纪念币更新', content, url)
 
         with open('commemorativeCoins.json', 'w') as f:
             json.dump(newVersion, f, ensure_ascii=False)
@@ -88,7 +82,8 @@ def main():
 
     else:
         # send heartbeat
-        sendMsg('Heartbeat', ('plan is running, did not find new article',), ('',))
+        for sendMsg in msgChannel:
+            sendMsg('Heartbeat', ('plan is running, did not find new article',), ('a',))
         logging.info(f'did not find new article')
 
 
@@ -96,6 +91,7 @@ def sendMail(title, contents, urls):
     import yagmail
 
     content = ''
+    
     for url, con in zip(urls, contents):
         content += f'<a href="{url}">{con}</a>'
     yag = yagmail.SMTP('andrew_lauu@foxmail.com', 'sfrjjkcpkhhsbefa', host='smtp.qq.com')
@@ -103,21 +99,54 @@ def sendMail(title, contents, urls):
     logging.info(f'sent mail {title}')
 
 
-def sendToast(title, content, *args):
+def showToast(title, content, *args):
     from win10toast import ToastNotifier
 
     toast = ToastNotifier()
     for c in content:
         toast.show_toast(title, c)
-        logging.info(f'Made toast {title}')
+    logging.info(f'Made toast {title}')
 
+def showNotification(title,content,urls):
+    for c,u in zip(content,urls):
+        cmd=f'termux-notification --action "termux-open-url {u}" -c "tap to open {title} --title {content}'
+        os.system(cmd)
+    logging.info(f'Sent notification {title}')
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: <%(funcName)s> - %(message)s',
                         datefmt='%Y-%d-%m %H:%M:%S')
     logging.debug('Started process.')
-    schedule.every().day.at('10:00').do(main)
+    
+    # 1: win 10 toast 2:email 3:android notification
+    # todo multi way
+    if NOTIFIER_CHANNEL:=os.getenv('NOTIFIER_CHANNEL'):
+        logging.debug(f'Get system variant NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
+        NOTIFIER_CHANNEL=set(NOTIFIER_CHANNEL)
+    else:
+        NOTIFIER_CHANNEL={'1'}
+        logging.debug(f'Use default NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
 
+    baseChannel=set('123')
+
+    if not NOTIFIER_CHANNEL.issubset(baseChannel):
+        NOTIFIER_CHANNEL &= baseChannel
+        logging.warning(f'Only "1" "2" or "3" expected in NOTIFIER_CHANNEL, {NOTIFIER_CHANNEL} was given. Aborted illegal options.')
+
+    msgChannelDict={
+            '1':showToast,
+            '2':sendMail,
+            '3':showNotification
+            }
+
+    msgChannel=[]
+    
+    for i in NOTIFIER_CHANNEL:
+        msgChannel.append(msgChannelDict[i])
+
+    logging.info(f'Message sendMsg set as {NOTIFIER_CHANNEL}:{[f.__name__ for f in msgChannel]}')
+
+    schedule.every().day.at('10:00').do(main,msgChannel=msgChannel)
     logging.debug('Scheduled plan.')
     while True:
         plan = [repr(p) for p in schedule.get_jobs()]
