@@ -30,7 +30,7 @@ def rotate(filenames, angle, overwrite):
 
 root = Tk()
 root.title('PDF rotate')
-root.geometry('400x400')
+root.geometry('400x600')
 root.resizable(width=True, height=True)
 font = Font(size=14)
 
