@@ -109,3 +109,4 @@ venv.bak/
 /MergeExcel.py___jb_tmp___
 .*.un~
 .idea/*
+.*.swp
