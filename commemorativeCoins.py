@@ -6,7 +6,6 @@ import requests
 from lxml import etree
 import urllib.parse
 import json
-<<<<<<< HEAD
 import schedule
 from colorama import Fore,init
 
