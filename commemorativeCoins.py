@@ -24,7 +24,7 @@ def getICBCNews()->tuple:
     newUrl = 'https://www.icbc.com.cn'
     newNews = news[0]
     newUrl += urllib.parse.unquote(urls[0])
-    logging.info(f'Got latest news 《{newNews[:8]}...》')
+    logging.info(f'Got latest news 《{colored(newNews[:8])}...》')
 
     return newNews, newUrl
 
@@ -43,7 +43,7 @@ def getPBCNews()->tuple:
     newNews = news[0]
     newUrl = 'http://www.pbc.gov.cn'
     newUrl += urls[0]
-    logging.info(f'Got latest news 《{newNews[:8]}...》')
+    logging.info(f'Got latest news 《{colored(newNews[:8])}...》')
 
     return newNews, newUrl
 
@@ -73,7 +73,7 @@ def main(msgChannel:list)->None:
         # send change
         content = [icbcNews, pbcNews]
         url = [icbcUrl, pbcUrl]
-        logging.info('Found new article '+colored(f'{content}'))
+        logging.info(f'Found new article {colored(content)}')
 
         for sendMsg in msgChannel:
             sendMsg('纪念币更新', content, url)
@@ -111,9 +111,9 @@ def showToast(title:str, content:list, *args)->None:
         toast.show_toast(title, c)
     logging.info(f'Made toast {title}')
 
-def showNotification(title:str,content:list,urls:list)->None:
+def showNoti(title:str,content:list,urls:list)->None:
     for c,u in zip(content,urls):
-        cmd=f'termux-notification --action "termux-open-url {u}" -c "tap to open" {title} --title {content}'
+        cmd=f'termux-notification --action "termux-open-url {u}" --content "tap to open {title}" --title {content}'
         os.system(cmd)
     logging.info(f'Sent notification {title}')
 
@@ -121,12 +121,9 @@ def getEnv()->list:
 
     # 1: win 10 toast 2:email 3:android notification
     # todo multi way
-    if NOTIFIER_CHANNEL:=os.getenv('NOTIFIER_CHANNEL'):
-        logging.debug(f'Get system variant NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
-        NOTIFIER_CHANNEL=set(NOTIFIER_CHANNEL)
-    else:
-        NOTIFIER_CHANNEL={'1'}
-        logging.debug(f'Use default NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
+    NOTIFIER_CHANNEL=os.getenv('NOTIFIER_CHANNEL','23')
+    logging.debug(f'Get system variant NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
+    NOTIFIER_CHANNEL=set(NOTIFIER_CHANNEL)
 
     baseChannel=set('123')
 
@@ -137,7 +134,7 @@ def getEnv()->list:
     msgChannelDict={
             '1':showToast,
             '2':sendMail,
-            '3':showNotification
+            '3':showNoti
             }
 
     msgChannel=[]
@@ -155,15 +152,16 @@ def logPlan():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: <%(funcName)s> - %(message)s',
-                        datefmt='%Y-%d-%m %H:%M:%S')
+                        datefmt='%Y-%m-%d %H:%M:%S')
     logging.debug('Started process.')
     #colorama init
-    init(autoreset=True)
+    #init(autoreset=True)
     msgChannel=getEnv()
 
-    schedule.every().day.at('10:00').do(main,msgChannel=msgChannel).tag('mainPlan')
-    logging.debug('Scheduled plan.')
     schedule.every(2).hours.do(logPlan)
+    schedule.every().day.at('10:00').do(main,msgChannel=msgChannel).tag('mainPlan')
+    
+    schedule.run_all()
     while True:
         schedule.run_pending()
         time.sleep(10)
