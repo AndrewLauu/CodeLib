@@ -32,7 +32,7 @@ def getICBCNews()->tuple:
 def getPBCNews()->tuple:
     logging.debug('Getting pbc news...')
 
-    url = 'http://www.pbc.gov.cn/huobijinyinju/147948/147964/22786/index2.html'
+    url = 'http://www.pbc.gov.cn/huobijinyinju/147948/147964/index.html'
     re = requests.post(url)
     html = etree.HTML(re.content.decode('utf8'))
     logging.info(f'Response status is {re.status_code}')
