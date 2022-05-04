@@ -7,14 +7,15 @@ from tkinter.font import Font
 from tkinter.messagebox import showinfo
 
 
-def fileRead():
-    filenames = filedialog.askopenfilenames(filetypes=[('pdf', '*.pdf')])
+def fileRead(filenames: list=None):
+    if not filenames:
+        filenames = filedialog.askopenfilenames(filetypes=[('pdf', '*.pdf')])
     strPath = ','.join(filenames).lower()
     path.set(strPath)
     label1.config(text=f'2. 选中 {len(filenames)} 个文件')
 
 
-def rotate(filenames, angle, overwrite):
+def rotate(filenames:str|list|StringVar, angle, overwrite):
     for inFp in filenames.get().split(','):
         inPdf = reader(inFp)
         n = inPdf.getNumPages()
@@ -24,7 +25,7 @@ def rotate(filenames, angle, overwrite):
         for i in range(n):
             p = inPdf.getPage(i).rotateClockwise(int(angle.get()))
             outPdf.addPage(p)
-            outPdf.write(open(outFp, 'wb'))
+        outPdf.write(open(outFp, 'wb'))
     showinfo(message="完成，保存在源文件所在文件夹")
 
 

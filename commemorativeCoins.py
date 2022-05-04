@@ -1,22 +1,25 @@
+import copy
+import json
 import logging
 import os
+import platform
+import sys
 import time
+import urllib.parse
 
 import requests
-from lxml import etree
-import urllib.parse
-import json
 import schedule
-from colorama import Fore,init
+from colorama import Fore
+from lxml import etree
 
 
-def getICBCNews()->tuple:
-    logging.debug('Getting icbc news...')
+def getICBCNews() -> tuple:
+    logging.info('Getting icbc news...')
 
     url = 'https://www.icbc.com.cn/ICBC/纪念币专区/default.htm'
     re = requests.get(url)
     html = etree.HTML(re.content.decode('utf8'))
-    logging.info(f'Response status is {re.status_code}')
+    # logging.info(f'Response status is {re.status_code}')
 
     news = html.xpath('//span[@class="ChannelSummaryList-insty"]/a/@data-collecting-param')
     urls = html.xpath('//span[@class="ChannelSummaryList-insty"]/a/@href')
@@ -29,13 +32,13 @@ def getICBCNews()->tuple:
     return newNews, newUrl
 
 
-def getPBCNews()->tuple:
-    logging.debug('Getting pbc news...')
+def getPBCNews() -> tuple:
+    logging.info('Getting pbc news...')
 
-    url = 'http://www.pbc.gov.cn/huobijinyinju/147948/147964/index.html'
+    url = 'http://www.pbc.gov.cn/huobijinyinju/147948/147964/22786/index1.html'
     re = requests.post(url)
     html = etree.HTML(re.content.decode('utf8'))
-    logging.info(f'Response status is {re.status_code}')
+    # logging.info(f'Response status is {re.status_code}')
 
     news = html.xpath('//font[@class="newslist_style"]/a/@title')
     urls = html.xpath('//font[@class="newslist_style"]/a/@href')
@@ -47,23 +50,35 @@ def getPBCNews()->tuple:
 
     return newNews, newUrl
 
-def colored(string:str)->str:
-    return Fore.RED + string +Fore.RESET
 
-def main(msgChannel:list)->None:
+def colored(string: str) -> str:
+    return Fore.RED + string + Fore.RESET
 
+
+def main(msgChannel: set) -> None:
     icbcNews, icbcUrl = getICBCNews()
     pbcNews, pbcUrl = getPBCNews()
 
     if not os.path.isfile('commemorativeCoins.json'):
-        open('commemorativeCoins.json', 'w').close()
-        logging.info('Did not find json log, created one.')
+        jsonTemp = {
+            "icbc": {
+                "news": "t",
+                "url": "url"
+            },
+            "pbc": {
+                "news": "t",
+                "url": "url"
+            }
+        }
+        with open('commemorativeCoins.json', 'w') as f:
+            json.dump(jsonTemp, f)
+        logging.debug('Did not find json log, created one.')
 
     with open('commemorativeCoins.json', 'r') as f:
         oldVersion = json.load(f)
     logging.debug('Read json log.')
 
-    newVersion = oldVersion.copy()
+    newVersion = copy.deepcopy(oldVersion)
     newVersion['icbc']['news'] = icbcNews
     newVersion['icbc']['url'] = icbcUrl
     newVersion['pbc']['news'] = pbcNews
@@ -73,95 +88,120 @@ def main(msgChannel:list)->None:
         # send change
         content = [icbcNews, pbcNews]
         url = [icbcUrl, pbcUrl]
-        logging.info(f'Found new article {colored(content)}')
-
+        logging.info(f'Found new article {colored(str(content))}')
+        msgChannel.add(sendMail)
         for sendMsg in msgChannel:
-            sendMsg('纪念币更新', content, url)
+            try:
+                sendMsg('纪念币更新', content, url)
+            except:
+                logging.warning('failed to send msg: ', exc_info=True)
 
         with open('commemorativeCoins.json', 'w') as f:
             json.dump(newVersion, f, ensure_ascii=False)
 
-        logging.info('Wrote to json log.')
+        logging.debug('Wrote to json log.')
 
     else:
         # send heartbeat
         for sendMsg in msgChannel:
-            sendMsg('Heartbeat', ['plan is running, did not find new article'], ['a'])
+            try:
+                sendMsg('Heartbeat', ['plan is running, did not find new article'], ['a'])
+            except:
+                logging.warning('failed to send msg: ', exc_info=True)
         logging.info(f'did not find new article')
 
 
-
-def sendMail(title:str, contents:list, urls:list)->None:
+def sendMail(title: str, contents: list, urls: list) -> None:
     import yagmail
 
     content = ''
-    
+
     for url, con in zip(urls, contents):
-        content += f'<a href="{url}">{con}</a>'
+        content += f'<br><a href="{url}">{con}</a></br>'
     yag = yagmail.SMTP('andrew_lauu@foxmail.com', 'sfrjjkcpkhhsbefa', host='smtp.qq.com')
-    yag.send(to='andrew_lauu@126.com', subject=title, contents=content)
-    logging.info(f'sent mail {title}')
+    to = 'andrew_lauu@126.com'
+    yag.send(to=to, subject=title, contents=content)
+    logging.debug(f'sent mail {to=} {title=} {content=}')
 
 
-def showToast(title:str, content:list, *args)->None:
+def showToast(title: str, content: list, *args) -> None:
     from win10toast import ToastNotifier
 
     toast = ToastNotifier()
     for c in content:
-        toast.show_toast(title, c)
-    logging.info(f'Made toast {title}')
+        toast.show_toast(title, msg=c, icon_path=None)
+    logging.debug(f'Made toast {title}')
 
-def showNoti(title:str,content:list,urls:list)->None:
-    for c,u in zip(content,urls):
-        cmd=f'termux-notification --action "termux-open-url {u}" --content "tap to open {title}" --title {content}'
+
+def showNoti(title: str, content: list, urls: list) -> None:
+    for c, u in zip(content, urls):
+        cmd = f'termux-notification --action "termux-open-url {u}" --content "tap to open {title}" --title {content}'
         os.system(cmd)
-    logging.info(f'Sent notification {title}')
+    logging.debug(f'Sent notification {title}')
 
-def getEnv()->list:
 
+def getEnv() -> set:
     # 1: win 10 toast 2:email 3:android notification
-    # todo multi way
-    NOTIFIER_CHANNEL=os.getenv('NOTIFIER_CHANNEL','23')
-    logging.debug(f'Get system variant NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
-    NOTIFIER_CHANNEL=set(NOTIFIER_CHANNEL)
+    msgChannelDict = {
+        '1': showToast,
+        '2': sendMail,
+        '3': showNoti
+    }
+    baseChannel = set(msgChannelDict.keys())
+    defaultChannel = '1' if platform.system() == 'Windows' else '2'
+    logging.debug(f'{defaultChannel=}')
 
-    baseChannel=set('123')
+    NOTIFIER_CHANNEL = set(os.getenv('NOTIFIER_CHANNEL', defaultChannel))
+    logging.debug(f'Get system variant NOTIFIER_CHANNEL:{NOTIFIER_CHANNEL}')
+    # NOTIFIER_CHANNEL = set(NOTIFIER_CHANNEL)
 
     if not NOTIFIER_CHANNEL.issubset(baseChannel):
         NOTIFIER_CHANNEL &= baseChannel
-        logging.warning(colored(f'Only "1" "2" or "3" expected in NOTIFIER_CHANNEL, {NOTIFIER_CHANNEL} was given. Aborted illegal options.'))
+        logging.warning(colored(
+            f'Only {baseChannel} expected in NOTIFIER_CHANNEL, {NOTIFIER_CHANNEL} was given. Aborted illegal options.'))
 
-    msgChannelDict={
-            '1':showToast,
-            '2':sendMail,
-            '3':showNoti
-            }
+    msgChannel = set()
 
-    msgChannel=[]
-    
     for i in NOTIFIER_CHANNEL:
-        msgChannel.append(msgChannelDict[i])
+        msgChannel.add(msgChannelDict[i])
 
     logging.info(f'Message sendMsg set as {NOTIFIER_CHANNEL}:{[f.__name__ for f in msgChannel]}')
     return msgChannel
 
-def logPlan():
 
+def logPlan():
     plan = [repr(p) for p in schedule.get_jobs('mainPlan')]
     logging.info('\n'.join(plan))
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: <%(funcName)s> - %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
-    logging.debug('Started process.')
-    #colorama init
-    #init(autoreset=True)
-    msgChannel=getEnv()
 
-    schedule.every(2).hours.do(logPlan)
-    schedule.every().day.at('10:00').do(main,msgChannel=msgChannel).tag('mainPlan')
-    
-    schedule.run_all()
-    while True:
-        schedule.run_pending()
-        time.sleep(10)
+if __name__ == '__main__':
+    fileHandler = logging.FileHandler('commemorativeCoins.log')
+    fileHandler.setLevel(logging.DEBUG)
+
+    consoleHandler = logging.StreamHandler(sys.stdout)
+    consoleHandler.setLevel(logging.INFO)
+
+    # init root logger by setting basicConfig
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(module)s.%(funcName)s [%(levelname)s]: %(message)s',
+        datefmt='%Y/%m/%d %H:%M:%S',
+        handlers=[fileHandler, consoleHandler],
+        encoding='utf8'
+    )
+    logging.info('Started process.')
+    # colorama init
+    # init(autoreset=True)
+
+    msgChannel = getEnv()
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'asplan':
+        schedule.every(4).hours.do(logPlan)
+        schedule.every().day.at('10:00').do(main, msgChannel=msgChannel).tag('mainPlan')
+
+        schedule.run_all()
+        while True:
+            schedule.run_pending()
+            time.sleep(10)
+    else:
+        main(msgChannel=msgChannel)
