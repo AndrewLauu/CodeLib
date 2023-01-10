@@ -72,7 +72,7 @@ def get_result(html, result=None):
 
 def send_mail(msg):
     # 发送邮件，初始参数
-    mailer = '123456@139.com'  # 发送方邮箱
+    mailer = '123456#139.com'  # 发送方邮箱
     password = "cmcc"  # 填入发送方邮箱的授权码
     msg_to = ''  # 收件人邮箱
     Subject = "普通话成绩监控"
