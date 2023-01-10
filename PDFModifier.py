@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-import os
+import logging
 import os
-import winreg
+import sys
+
+
+from winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER
 
 from PyPDF2 import PdfFileReader, PdfFileWriter
-from PyPDF2.pdf import PageObject
-
-import logging
-import sys
+from PyPDF2._page import PageObject
 
 fileHandler = logging.FileHandler('PDFModifier.log', encoding='utf8')
 fileHandler.setLevel(logging.DEBUG)
@@ -83,16 +84,16 @@ def __split(pdfFile: PdfFileReader, interval: int, pageFrom: int = None, pageTo:
     return pages
 
 
-def __writePdf(pdfPages: list[PdfFileWriter], saveDir: str = None, saveNames: list[str] = None, autoName: bool = True,
-               baseName: str = 'result.pdf'):
+def __writePdf(pdfPages: list[PdfFileWriter] | PdfFileWriter, saveDir: str = None, saveNames: list[str] = None,
+               autoName: bool = True, baseName: str = 'result.pdf'):
     """
-        Write pdf pages in *one* pdf file. Wrapped PyPdf2.PdfFileWriter
+        Write each `PdfFileWriter` to *one* pdf file. Wrapped PyPdf2.PdfFileWriter
 
-    :param pdfPages:
+    :param pdfPages: accept PdfFileWriter, or list[PdfFileWriter], will iter each one in list
     :param saveDir:
     :param saveNames:
     :param autoName:
-    :param baseName:
+    :param baseName: use only when `autoName` is True to generate save name, accept '*.pdf'
     :return:
     """
 
@@ -105,12 +106,15 @@ def __writePdf(pdfPages: list[PdfFileWriter], saveDir: str = None, saveNames: li
     nFiles = len(pdfPages)
 
     saveDir = saveDir.strip('"\'') or desktopDir
-    resultDir = os.path.join(saveDir, 'result')
+    # save dir exists and is not empty, make dir `result`
+    # if os.path.isdir(saveDir) and os.listdir(saveDir) == []:
+    #     saveDir = os.path.join(saveDir, 'result')
 
     try:
-        os.makedirs(resultDir)
+        os.makedirs(saveDir)
     except FileExistsError:
-        pass
+        logger.warning('Save dir: %s exists before.', saveDir)
+
         # following is original method to change auto increase save dir when exists. Bug difficult to fix
         # cnt: int = 1
         # while os.path.exists(resultDir):
@@ -127,14 +131,15 @@ def __writePdf(pdfPages: list[PdfFileWriter], saveDir: str = None, saveNames: li
     elif autoName:
         saveNames = [f'{i}_{baseName}' for i in range(1, nFiles + 1)]
     else:
-        raise ValueError('Arg `saveNames` not given or not list, however `autoName` was turn off.')
+        raise ValueError('Arg `saveNames` not given or not list, whats-more `autoName` was not true, '
+                         'program do not know what to do.')
 
     cnt = 1
-    for p, n in zip(pages, saveNames, strict=True):
-        dstName = os.path.join(resultDir, n.lower().replace('.pdf', '') + '.pdf')
-        logger.info(f'({cnt} / {nFiles}) Writing {n}...')
+    for page, name in zip(pages, saveNames, strict=True):
+        dstName = os.path.join(saveDir, name.lower().replace('.pdf', '') + '.pdf')
+        logger.info(f'({cnt} / {nFiles}) Writing {name}...')
         with open(dstName, 'wb') as f:
-            p.write(f)
+            page.write(f)
         cnt += 1
 
 
@@ -181,62 +186,52 @@ def splitByCsvWithConfig(csvPath: str, saveDir: str = None, strict=False):
     # csv -> dict
     for line in csvLine:
         rows: list = line.split(',')
-        path = rows[0].strip().strip('"\'')
-        if not checkPath(path, '.pdf', raiseErr=strict):
+        srcPdfPath = rows[0].strip().strip('"\'')
+        if not checkPath(srcPdfPath, '.pdf', raiseErr=strict):
             errInfo = f'{csvLine.index(line)}, {line}'
             failedRow.append(errInfo)
             continue
 
         inner: dict = dict(zip(csvHeader[1:], rows[1:]))
-        if path in splitConfigDict:
-            splitConfigDict[path].append(inner)
-        else:
-            splitConfigDict[path] = [inner]
+        splitConfigDict[srcPdfPath] = splitConfigDict.get(srcPdfPath, []) + [inner]
 
-    logger.debug(f'Trans {len(csvLine)} csv lines to dict')
+    logger.debug(f'Trans {len(csvLine)} csv lines to dict: {splitConfigDict}')
 
     if failedRow:
         logger.warning(f'{len(failedRow)} row(s) in csv failed to handle, '
                        f'infos are as follow:\n' + ';\n'.join(failedRow))
 
     # iter src PDF
-    for pdfPath, config in splitConfigDict.items():
-        basename: str = os.path.basename(pdfPath)
-        fname: str = os.path.splitext(basename)[0]
+    for srcPdfPath, config in splitConfigDict.items():
+        pdfBaseName: str = os.path.basename(srcPdfPath)
+        purePdfBaseName: str = os.path.splitext(pdfBaseName)[0]
         nConfig: int = len(config)
-        names: list[str] = []
-        if nConfig == 1:
-            autoName: bool = True
-        else:
-            autoName = False
-            names = [f'{i + 1}_{basename}' for i in range(nConfig)]
-        logger.info(f'Processing {basename}, {nConfig} configs to it, {autoName=}, {names=}...')
+        logger.info(f'Processing {pdfBaseName}, {nConfig} configs to it...')
 
-        pdf = PdfFileReader(pdfPath)
+        pdf = PdfFileReader(srcPdfPath)
         # iter split PDF
-        for con in config:
+        for i, con in enumerate(config):
             nFrom: int = int(con['pageFrom']) if con['pageFrom'] else None
             nTo: int = int(con['pageTo']) if con['pageTo'] else None
             interval: int = int(con['interval']) if con['interval'] else None
 
             saveDir = saveDir or con['savePath'].strip().strip('"\'') or desktopDir
-            resultDir = os.path.join(saveDir, fname)
+            saveBaseName = f'{i}_{con["saveName"] or purePdfBaseName}'
 
-            logger.info(f'Processing page {nFrom}->{nTo} in {basename}, '
-                        f'splitting {interval} page(s) into each file...')
+            logger.info(f'Processing page {nFrom}->{nTo} in {pdfBaseName}, '
+                        f'splitting {interval} page(s) into {saveBaseName}...')
 
             resultWriter: list[PdfFileWriter] = __split(pdf, interval=interval, pageFrom=nFrom, pageTo=nTo)
-            __writePdf(resultWriter, saveDir=resultDir, autoName=autoName, baseName=basename,
-                       saveNames=None if autoName else [names.pop(0)])
+            __writePdf(resultWriter, saveDir=saveDir, autoName=True, baseName=saveBaseName)
 
 
 def checkPath(path: str | os.PathLike, ext: str, raiseErr=True) -> bool | None:
     check: bool = True
     ext = '.' + ext.lstrip('.').lower()
-    path = path.strip().strip('"\'')
 
     if path.startswith('"') or path.startswith("'"):
         logger.warning(f'{path=} is wrapper in quoters.')
+        path = path.strip().strip('"\'')
 
     if not os.path.isfile(path):
         msg = f'{path} do not exist!'
@@ -365,7 +360,7 @@ def main():
                                     errors='replace').read().strip().strip('\ufeff').split('\n')
             splitByIntervalWithNames(pdfPath, names, interval, saveDir)
         case '3':
-            export = input('Export csv template? Y/n')
+            export = input('Export csv template? Y/n: ')
             logger.debug(f'User input {export=}')
 
             if export in 'Yy':
@@ -379,7 +374,8 @@ def main():
                         '"Every () page(s) in new pdf file'
                         'default as PageTo-pageFrom+1 when omitted"',
                         '"Save path, omissible when input in cmd, '
-                        'fallback to desktop when both cmd and csv are omitted"'
+                        'fallback to desktop when both cmd and csv are omitted"',
+                        '"result PDF filename"'
                     ]))
                 logger.info(f'Template export to {templatePath}.')
             csvPath: str = input('Input csv file path, include title in csv file : ').strip().strip('"\'')
@@ -400,10 +396,10 @@ def main():
 
 
 # global var
-csvHeader = ['pdfPath', 'pageFrom', 'pageTo', 'interval', 'savePath']
-regKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                        'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
-desktopDir = winreg.QueryValueEx(regKey, "Desktop")[0]
+csvHeader = ['pdfPath', 'pageFrom', 'pageTo', 'interval', 'savePath', 'saveName']
+regKey = OpenKey(HKEY_CURRENT_USER,
+                 'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+desktopDir = QueryValueEx(regKey, "Desktop")[0]
 
 if __name__ == '__main__':
     logger.debug('init from __main__')

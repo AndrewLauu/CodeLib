@@ -2,7 +2,7 @@ import random
 import time
 from hashlib import sha1
 #import hashlib
-#otpauth://totp/NeteaseMail:lover_andrew@126.com?secret=RR4E FWEL MGFF 7J6F &issuer=NeteaseMail
+#otpauth://totp/NeteaseMail:lover_andrew@126.com?secret=****&issuer=NeteaseMail
 def gen():
     seed='0123456789abcdefghijklmnopqrstuvwxyz'.upper()
     key=''

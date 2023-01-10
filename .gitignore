@@ -110,3 +110,5 @@ venv.bak/
 .*.un~
 .idea/*
 .*.swp
+
+keyring.ini

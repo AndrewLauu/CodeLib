@@ -11,6 +11,7 @@ import requests
 import schedule
 from colorama import Fore
 from lxml import etree
+import configparser
 
 
 def getICBCNews() -> tuple:
@@ -112,14 +113,17 @@ def main(msgChannel: set) -> None:
 
 
 def sendMail(title: str, contents: list, urls: list) -> None:
-    import yagmail
-
+    import yagmail, configparser
+    conf = configparser.ConfigParser()
+    conf.read('keyring.ini')
+    address = conf['mail']['mail']
+    key = conf['mail']['key']
     content = ''
 
     for url, con in zip(urls, contents):
         content += f'<br><a href="{url}">{con}</a></br>'
-    yag = yagmail.SMTP('andrew_lauu@foxmail.com', 'sfrjjkcpkhhsbefa', host='smtp.qq.com')
-    to = 'andrew_lauu@126.com'
+    yag = yagmail.SMTP(address, key, host='smtp.qq.com')
+    to = address
     yag.send(to=to, subject=title, contents=content)
     logging.debug(f'sent mail {to=} {title=} {content=}')
 
