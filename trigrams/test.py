@@ -1,5 +1,6 @@
 from random import randint,shuffle,choice,sample
 import json
+import os
 
 
 def change(bars):
@@ -42,54 +43,80 @@ def getYao():
     print(f'  ## Got Taiji: {taiji}')
     
     for ch in range(3):
-        print('-'*6)
-        print(f'  ## Performing {ch+1} change')
+        print(f'第{ch+1}变'.center(WIDTH,'-'))
         bars=change(bars)
-        print('-'*6)
     return int(len(bars)/4)
     
-def getDes(yao):
-    trigramsNo=str(eval('0b'+''.join(yao)))
+def getDes(trigram,yao=None):
+    # key must be string
+    trigramsNo=str(int(''.join([str(i) for i in trigram]),2))
+    if yao:
+        print(trigramsDict[trigramsNo]['yaos'][yao-1])
+        return
     name=trigramsDict[trigramsNo]['name']
+    odr=trigramsDict[trigramsNo]['order']
     fig=trigramsDict[trigramsNo]['fig']
     fn=trigramsDict[trigramsNo]['fullname']
     dsp=trigramsDict[trigramsNo]['description']
-    print(yao)
-    print(name,fig,fn,dsp)
 
+    print(f'第{odr}卦，{fig} {name}-{fn}')
+    print(dsp)
+
+
+def getExplain(result):
+
+    trigram=[i%2 for i in result]
+    print('得卦'.center(WIDTH,'='))
+    getDes(trigram)
+   
+    # get change
+    moving=[]
+    chYao=[]
+
+    for i,y in enumerate(result):
+        if y==6:
+            moving.append(i+1)
+            chYao.append(1)
+        elif y==9:
+            moving.append(i+1)
+            chYao.append(0)
+        else:
+            chYao.append(y%2)
+
+    if not moving:
+        return
+    print(f'{moving}爻变，得变卦'.center(WIDTH,'='))
+    getDes(chYao)
+
+    print('爻辞，'.center(WIDTH,'='))
+    match len(moving):
+        case 0|3|6:
+            pass
+        case 1:
+            getDes(trigram,moving[0])
+        case 2:
+            getDes(trigram,max(moving))
+            getDes(trigram,min(moving))
+        case 4:
+            getDes(trigram,min(set(range(1,7))-set(moving)))
+        case 5:
+            getDes(chYao,min(set(range(1,7))-set(moving)))
+            getDes(chYao,max(set(range(1,7))-set(moving)))
 
 if __name__=='__main__':
+    WIDTH=os.get_terminal_size().columns-4
     result=[]
     trigramsDict=json.load(open('trigrams.json','r'))
     for y in range(6):
-        print('='*6)
-        print(f'# Getting {y+1} yao')
+        print(f'取第{y+1}爻'.center(WIDTH,'='))
         yao=getYao()
         result.append(yao)
-        print(f'# Got {y+1} yao: {yao}')
-        print('='*6)
-    #print(result)
 
     #yaoDict={9:'⚊°',8:'⚋',7:'⚊',6:'⚋°'}
     #yaofig=[yaoDict[i] for i in result[::-1]]
     #print('\n'.join(yaofig))
-    moving=[]
-    reChange=[]
-    for i,y in enumerate(result):
-        if y==6 or y==9:
-            moving.append(i+1)
-            # mature yao change into young yao
-            reChange.append(int(y/2))
-        else:
-            reChange.append(y)
     
-    yao=[str(i%2) for i in result]
-    print('original trigrams')
-    getDes(yao)
-    if reChange:
-        print(moving,'yao moving')
-        print('========')
-        print('change trigrams')
-        chYao=[str(i%2) for i in reChange]
-        getDes(chYao)
+    print(result)
+    getExplain(result)
+
 
