@@ -1,4 +1,5 @@
 # coding=utf-8
+from random import randint
 
 import sys
 import traceback
@@ -7,29 +8,16 @@ import logging
 
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait as Wait
+# from selenium.webdriver.common.keys import Keys
+import sys
+import datetime
+import traceback
+import logging
 
 
-fileHandler = logging.FileHandler('OaLogin.log', encoding='utf8')
-fileHandler.setLevel(logging.DEBUG)
-
-consoleHandler = logging.StreamHandler(sys.stdout)
-consoleHandler.setLevel(logging.INFO)
-
-# init root logger by setting basicConfig
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(module)s.%(funcName)s [%(levelname)s]: %(message)s',
-    datefmt='%Y/%m/%d %H:%M:%S',
-    handlers=[fileHandler, consoleHandler],
-    encoding='utf8'
-)
-
-# Global logger for this module
-logger: logging.Logger = logging.getLogger(__name__)
-
-
-
+# =========error handler=============
 def callback_func(exc_type, exc_value, exc_traceback):
     import yagmail
     import configparser
@@ -37,7 +25,7 @@ def callback_func(exc_type, exc_value, exc_traceback):
     logger.error('', exc_info=(exc_type, exc_value, exc_traceback))
 
     conf = configparser.ConfigParser()
-    conf.read('keyring.ini')
+    conf.read('~/CodeLib/keyring.ini')
     address = conf['mail']['mail']
     key = conf['mail']['key']
 
@@ -55,8 +43,27 @@ def callback_func(exc_type, exc_value, exc_traceback):
 # overwrite exception hook
 sys.excepthook = callback_func
 
+# =========logging config=============
+# init root logger by setting basicConfig
+# consoleHandler = logging.StreamHandler(sys.stdout)
+# consoleHandler.setLevel(logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s]: %(message)s',
+    datefmt='%Y/%m/%d %H:%M:%S',
+    # handlers=[fileHandler, consoleHandler],
+    # handlers=[consoleHandler],
+    encoding='utf8'
+)
+
+# Global logger for this module
+logger: logging.Logger = logging.getLogger(__name__)
+
 # =========base config=============
-logger.info('init')
+now=datetime.datetime.strftime(datetime.datetime.now(),'%Y/%m/%d %H:%M:%S')
+logger.info(f'init@ {now}')
+
 url = 'https://iam.cscec8b.com.cn:48101/authn/index.html?service=https%3A%2F%2Fiam.cscec8b.com.cn%3A48101%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Did230859%26redirect_uri%3Dhttps%253A%252F%252Fapp.cscec8b.com.cn%252Fwelcome-reset-cookie.html%26response_type%3Dcode%26client_name%3DCasOAuthClient'
 # new_driver_path = 'path to driver'
 # firefox_path = 'C:\\Program Files\\Mozilla Firefox\\firefox.exe'
@@ -71,16 +78,19 @@ option.add_argument('--headless')
 # option.add_argument('--safe-mode')
 
 drv = Firefox(options=option)
-logger.debug('drv init')
+logger.info('drv init')
 drv.implicitly_wait(30)
 drv.get(url)
-logger.debug(f'got {drv.title}')
+logger.info(f'got {drv.title}')
 
 # ========= login =============
-for i in range(3):
-    logger.info(f'wait for login page {3-i}...')
-    time.sleep(1)
-# print()
+logger.info(f'wait for login page...')
+# time.sleep(3)
+newForm= Wait(drv, 20).until(
+    EC.visibility_of_element_located(
+        (By.ID,'defaultway_staticpwd')
+        )
+    )
 logger.debug(f'login @{drv.current_url}...')
 # drv.find_element(by=By.XPATH, value='//button[@class="more-defaultway ie8borderraidus"]').click()
 
@@ -88,51 +98,62 @@ logger.debug(f'login @{drv.current_url}...')
 # newForm = drv.find_element(by=By.XPATH, value='//form[@id="otherway_staticpwd"]')
 # newForm = drv.find_element(by=By.ID, value='otherway_staticpwd')
 
-newForm = drv.find_element(by=By.ID, value='defaultway_staticpwd')
-# print(newForm.find_element(by=By.NAME, value="username").get_attribute('placeholder'))
+# newForm = drv.find_element(by=By.ID, value='defaultway_staticpwd')
+# logger.info(newForm.find_element(by=By.NAME, value="username").get_attribute('placeholder'))
 # drv.execute_script('arguments[0].scrollIntoView(true);', newForm)
 # drv.switch_to.active_element.send_keys(Keys.TAB)
-# print(newForm.find_element(by=By.NAME, value="username").is_displayed())
-# print(drv.switch_to.active_element.text)
+# logger.info(newForm.find_element(by=By.NAME, value="username").is_displayed())
+# logger.info(drv.switch_to.active_element.text)
 # exit()
 newForm.find_element(by=By.NAME, value="username").send_keys('501A4765')
 newForm.find_element(by=By.NAME, value='authcode').send_keys('4765@Cceed')
 
 newForm.find_element(by=By.TAG_NAME, value='button').click()
 
-for i in range(10):
-    logger.debug(f'wait for login result {10-i}...')
-    time.sleep(1)
-# print()
+logger.info(f'wait for login result...')
+# time.sleep(10)
 
-logger.debug(f'logged in to {drv.title}')
-logger.debug(f'{drv.current_url=}')
+# logger.debug(drv.page_source)
 # with open('con.html','w') as f:
 #     f.write(drv.page_source)
+logger.debug(f'now @ {drv.title}: {drv.current_url=}')
+Wait(drv, 15).until(
+        EC.title_contains('中建八局门户'))
+logger.debug(f'now @ {drv.title}: {drv.current_url=}')
 # assert drv.title=='中建八局门户'
+logger.info(f'logged in')
 
 # ========= view news =============
-logger.info(f'now @ {drv.title}')
+logger.info('view news')
+logger.debug(f'now @ {drv.title}')
 logger.debug(f'{drv.current_url=}')
 
 home=drv.current_window_handle
 logger.debug(f'{home=}')
 
-logger.info('open news')
-newsRegion = drv.find_element(by=By.XPATH, value='//div[@id="app"]//div[@class="page-right"]//div[@class="cells_col"]')
-newsCell=newsRegion.find_element(by=By.CLASS_NAME, value='card-cell')
+logger.info(f'wait for home page loading...')
+
+newsRegion = Wait(drv, 20).until(
+        EC.element_to_be_clickable(
+            (By.XPATH,f'//div[@id="app"]//div[@class="page-right"]//div[@class="cells_col"][{randint(1,2)}]')
+            )
+        )
+                                         # [randint(0,1)]
+# newsRegion = drv.find_elements(by=By.XPATH, value='//div[@id="app"]//div[@class="page-right"]//div[@class="cells_col"]')[randint(0,1)]
+newsCell= newsRegion.find_elements(by=By.CLASS_NAME, value='card-cell')[randint(0,3)]
+# print(len(newsCell))
 logger.info(f"{newsCell.text=}")
 newsCell.click()
 
-
-for i in range(10):
-    logger.debug(f'wait for news {10-i}...')
-    time.sleep(1)
-# print()
-
+logger.info(f'wait for news...')
+time.sleep(5)
 wnds=drv.window_handles
 logger.debug(f'{wnds=}')
 drv.switch_to.window(wnds[-1])
+
+logger.info(f'reading news...')
+time.sleep(3)
+
 logger.info(f'now @ {drv.title}')
 logger.debug(f'{drv.current_url=}')
 logger.debug(f'{drv.current_window_handle=}')
