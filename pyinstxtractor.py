@@ -89,7 +89,7 @@ import struct
 import marshal
 import zlib
 import sys
-import imp
+import importlib
 import types
 from uuid import uuid4 as uniquename
 # 新加入的代码
@@ -288,7 +288,7 @@ class PyInstArchive:
 
             pycHeader = f.read(4) # Python magic value
 
-            if imp.get_magic() != pycHeader:
+            if importlib.util.MAGIC_NUMBER != pycHeader:
                 print('[!] Warning: The script is running in a different python version than the one used to build the executable')
                 print('    Run this script in Python{0} to prevent extraction errors(if any) during unmarshalling'.format(self.pyver))
 

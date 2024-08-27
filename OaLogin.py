@@ -1,17 +1,40 @@
 # coding=utf-8
-from ctypes import c_wchar
+
+import sys
+import traceback
 import time
+import logging
 
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import sys
-import traceback
+
+
+fileHandler = logging.FileHandler('OaLogin.log', encoding='utf8')
+fileHandler.setLevel(logging.DEBUG)
+
+consoleHandler = logging.StreamHandler(sys.stdout)
+consoleHandler.setLevel(logging.INFO)
+
+# init root logger by setting basicConfig
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(module)s.%(funcName)s [%(levelname)s]: %(message)s',
+    datefmt='%Y/%m/%d %H:%M:%S',
+    handlers=[fileHandler, consoleHandler],
+    encoding='utf8'
+)
+
+# Global logger for this module
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 
 def callback_func(exc_type, exc_value, exc_traceback):
     import yagmail
     import configparser
+
+    logger.error('', exc_info=(exc_type, exc_value, exc_traceback))
 
     conf = configparser.ConfigParser()
     conf.read('keyring.ini')
@@ -23,20 +46,22 @@ def callback_func(exc_type, exc_value, exc_traceback):
     # content = (exc_type, exc_value, exc_traceback)
     trace= traceback.format_exception(exc_type, exc_value, exc_traceback)
     content="\n".join(trace)
-    drv.quit()
     yag.send(subject=title, contents=content)
+
+    drv.quit()
+
 
 
 # overwrite exception hook
 sys.excepthook = callback_func
 
 # =========base config=============
-print('init')
+logger.info('init')
 url = 'https://iam.cscec8b.com.cn:48101/authn/index.html?service=https%3A%2F%2Fiam.cscec8b.com.cn%3A48101%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Did230859%26redirect_uri%3Dhttps%253A%252F%252Fapp.cscec8b.com.cn%252Fwelcome-reset-cookie.html%26response_type%3Dcode%26client_name%3DCasOAuthClient'
 # new_driver_path = 'path to driver'
 # firefox_path = 'C:\\Program Files\\Mozilla Firefox\\firefox.exe'
 
-print(f'goto {url}')
+logger.debug(f'goto {url}')
 # =========init driver=============
 option = FirefoxOptions()
 option.set_preference('permissions.default.image', 2)
@@ -46,17 +71,17 @@ option.add_argument('--headless')
 # option.add_argument('--safe-mode')
 
 drv = Firefox(options=option)
-print('drv init')
+logger.debug('drv init')
 drv.implicitly_wait(30)
 drv.get(url)
-print(f'got {drv.title}')
+logger.debug(f'got {drv.title}')
 
 # ========= login =============
 for i in range(3):
-    print(f'wait for login page {3-i}...',end='\r')
+    logger.info(f'wait for login page {3-i}...')
     time.sleep(1)
-print()
-print(f'login @{drv.current_url}...')
+# print()
+logger.debug(f'login @{drv.current_url}...')
 # drv.find_element(by=By.XPATH, value='//button[@class="more-defaultway ie8borderraidus"]').click()
 
 # drv.switch_to.frame("moreLoginBox")
@@ -76,54 +101,54 @@ newForm.find_element(by=By.NAME, value='authcode').send_keys('4765@Cceed')
 newForm.find_element(by=By.TAG_NAME, value='button').click()
 
 for i in range(10):
-    print(f'wait for login result {10-i}...',end='\r')
+    logger.debug(f'wait for login result {10-i}...')
     time.sleep(1)
-print()
+# print()
 
-print(f'logged in to {drv.title}')
-print(f'{drv.current_url=}')
+logger.debug(f'logged in to {drv.title}')
+logger.debug(f'{drv.current_url=}')
 # with open('con.html','w') as f:
 #     f.write(drv.page_source)
-assert drv.title=='中建八局门户'
+# assert drv.title=='中建八局门户'
 
 # ========= view news =============
-print(f'now @ {drv.title}')
-print(f'{drv.current_url=}')
+logger.info(f'now @ {drv.title}')
+logger.debug(f'{drv.current_url=}')
 
 home=drv.current_window_handle
-print(f'{home=}')
+logger.debug(f'{home=}')
 
-print('open news')
+logger.info('open news')
 newsRegion = drv.find_element(by=By.XPATH, value='//div[@id="app"]//div[@class="page-right"]//div[@class="cells_col"]')
 newsCell=newsRegion.find_element(by=By.CLASS_NAME, value='card-cell')
-print(f"{newsCell.text=}")
+logger.info(f"{newsCell.text=}")
 newsCell.click()
 
 
 for i in range(10):
-    print(f'wait for news {10-i}...',end='\r')
+    logger.debug(f'wait for news {10-i}...')
     time.sleep(1)
-print()
+# print()
 
 wnds=drv.window_handles
-print(f'{wnds=}')
+logger.debug(f'{wnds=}')
 drv.switch_to.window(wnds[-1])
-print(f'now @ {drv.title}')
-print(f'{drv.current_url=}')
-print(f'{drv.current_window_handle=}')
+logger.info(f'now @ {drv.title}')
+logger.debug(f'{drv.current_url=}')
+logger.debug(f'{drv.current_window_handle=}')
 
 # ========= log out =============
 # drv.close()
 # ActionChains(drv).key_down(Keys.CONTROL).send_keys("w").key_up(Keys.CONTROL).perform()
-print('logout')
+logger.info('logout')
 drv.switch_to.window(home)
-print(f'{drv.current_window_handle=}')
-print(f'now @ {drv.title}')
+logger.debug(f'{drv.current_window_handle=}')
+logger.debug(f'now @ {drv.title}')
 
 drv.find_element(by=By.XPATH,
                  value='//div[@class="page-header-right"]//div[@class="avatar-cell" and position()=5]//div[@class="cell"]'
                  ).click()
 
 drv.find_element(by=By.XPATH, value='//button[@class="ant-btn ant-btn-primary"]').click()
-print('finish')
+logger.info('finish')
 drv.quit()
